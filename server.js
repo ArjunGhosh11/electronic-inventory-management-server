@@ -27,6 +27,35 @@ app.get('/users', (req, res) => {
         return res.json(data);
     })
 });
+
+app.get('/users/:email', (req, res) => {
+    const email = req.params.email;
+    console.log(email)
+    const sql = `SELECT * FROM users WHERE email = ?`;
+    db.query(sql, [email], (err, result) => {
+        if (err) {
+            return res.json(err);
+        }
+        else {
+            console.log(result);
+            return res.json(result);
+        }
+    })
+});
+app.get('/admin/:email', (req, res) => {
+    const email = req.params.email;
+    console.log(email)
+    const sql = `SELECT * FROM users WHERE email = ?`;
+    db.query(sql, [email], (err, result) => {
+        if (err) {
+            return res.json(err);
+        }
+        else {
+            console.log(result);
+            return res.json({ "type": result[0].role });
+        }
+    })
+});
 app.get('/idProducer', (req, res) => {
     const sql = "SELECT * FROM id_producer";
     db.query(sql, (err, data) => {
@@ -80,6 +109,35 @@ app.get('/products', (req, res) => {
     })
 });
 
+app.get('/product/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = `SELECT * FROM product WHERE product_id = ?`;
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            return res.json(err);
+        }
+        else {
+            console.log(result);
+            return res.json(result);
+        }
+    })
+});
+app.get('/product/specs/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = `SELECT * FROM product_specs WHERE product_id = ?`;
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            return res.json(err);
+        }
+        else {
+            console.log(result);
+            return res.json(result);
+        }
+    })
+});
+
 app.listen(8081, () => {
     console.log("listening...");
 });
+
+//ADMIN CHECK
