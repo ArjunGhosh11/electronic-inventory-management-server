@@ -76,6 +76,19 @@ app.put('/idProducer/user', (req, res) => {
         }
     })
 })
+app.put('/idProducer/product', (req, res) => {
+    const sql = "UPDATE `id_producer` SET `no_of_items`=? WHERE name='product'";
+    const values = [req.body.id_no];
+    // console.log(req.body)
+    db.query(sql, [values], (err, result) => {
+        if (err) {
+            return res.json(err);
+        }
+        else {
+            return res.json(result);
+        }
+    })
+})
 
 app.post('/users', (req, res) => {
     const sql = "INSERT INTO `users` (`user_id`, `name`, `email`, `password`, `address`, `phone`, `role`) VALUES (?)";
@@ -108,6 +121,27 @@ app.get('/products', (req, res) => {
         return res.json(data);
     })
 });
+
+app.post('/products', (req, res) => {
+    const sql = "INSERT INTO `product` (`product_id`, `brand`, `model`, `type`, `quantity`, `unit_price`) VALUES (?)";
+    const values = [
+
+        req.body.id,
+        req.body.brand,
+        req.body.model,
+        req.body.type,
+        req.body.quantity,
+        req.body.unit_price
+    ];
+    db.query(sql, [values], (err, result) => {
+        if (err) {
+            return res.json({ success: false, err });
+        }
+        else {
+            return res.json({ success: true, result });
+        }
+    })
+})
 
 app.get('/product/:id', (req, res) => {
     const id = req.params.id;
