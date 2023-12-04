@@ -37,7 +37,7 @@ app.get('/users/:email', (req, res) => {
             return res.json(err);
         }
         else {
-            console.log(result);
+            // console.log(result);
             return res.json(result);
         }
     })
@@ -51,7 +51,7 @@ app.get('/admin/:email', (req, res) => {
             return res.json(err);
         }
         else {
-            console.log(result);
+            // console.log(result);
             return res.json({ "type": result[0].role });
         }
     })
@@ -165,7 +165,7 @@ app.get('/product/:id', (req, res) => {
             return res.json(err);
         }
         else {
-            console.log(result);
+            // console.log(result);
             return res.json(result);
         }
     })
@@ -178,11 +178,63 @@ app.get('/product/specs/:id', (req, res) => {
             return res.json(err);
         }
         else {
-            console.log(result);
+            // console.log(result);
             return res.json(result);
         }
     })
 });
+app.post('/product/specs', (req, res) => {
+    const sql = "INSERT INTO `product_specs` (`product_id`,`specifications`) VALUES (?)";
+    const values = [
+        req.body.product_id,
+        req.body.specifications
+    ];
+    console.log('values-', values);
+    db.query(sql, [values], (err, result) => {
+        if (err) {
+            return res.json({ success: false, err });
+        }
+        else {
+            return res.json({ success: true, result });
+        }
+    })
+})
+
+//REVIEW
+app.get('/reviews/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = `SELECT * FROM review WHERE product_id = ?`;
+    console.log(id)
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            return res.json(err);
+        }
+        else {
+            // console.log(result);
+            return res.json(result);
+        }
+    })
+});
+
+app.post('/reviews', (req, res) => {
+    const sql = "INSERT INTO `review` (`date`, `comment`, `product_id`, `name`) VALUES (?)";
+    const values = [
+
+        req.body.date,
+        req.body.comment,
+        req.body.product_id,
+        req.body.name
+    ];
+    db.query(sql, [values], (err, result) => {
+        if (err) {
+            return res.json({ success: false, err });
+        }
+        else {
+            return res.json({ success: true, result });
+        }
+    })
+})
+
 
 app.listen(8081, () => {
     console.log("listening...");
