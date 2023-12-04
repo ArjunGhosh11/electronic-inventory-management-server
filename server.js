@@ -143,6 +143,20 @@ app.post('/products', (req, res) => {
     })
 })
 
+app.put('/products/inventory/:id', (req, res) => {
+    const sql = "UPDATE `product` SET `quantity` = ? WHERE `product`.`product_id` = ?";
+    const values = [req.body.quantity, req.params.id];
+    console.log(req.body)
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            return res.json({ success: false, err });
+        }
+        else {
+            return res.json({ success: true, result });
+        }
+    })
+})
+
 app.get('/product/:id', (req, res) => {
     const id = req.params.id;
     const sql = `SELECT * FROM product WHERE product_id = ?`;
