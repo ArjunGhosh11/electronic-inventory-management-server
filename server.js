@@ -30,28 +30,24 @@ app.get('/users', (req, res) => {
 
 app.get('/users/:email', (req, res) => {
     const email = req.params.email;
-    console.log(email)
     const sql = `SELECT * FROM users WHERE email = ?`;
     db.query(sql, [email], (err, result) => {
         if (err) {
             return res.json(err);
         }
         else {
-            // console.log(result);
             return res.json(result);
         }
     })
 });
 app.get('/admin/:email', (req, res) => {
     const email = req.params.email;
-    console.log(email)
     const sql = `SELECT * FROM users WHERE email = ?`;
     db.query(sql, [email], (err, result) => {
         if (err) {
             return res.json(err);
         }
         else {
-            // console.log(result);
             return res.json({ "type": result[0].role });
         }
     })
@@ -66,7 +62,6 @@ app.get('/idProducer', (req, res) => {
 app.put('/idProducer/user', (req, res) => {
     const sql = "UPDATE `id_producer` SET `no_of_items`=? WHERE name='user'";
     const values = [req.body.id_no];
-    // console.log(req.body)
     db.query(sql, [values], (err, result) => {
         if (err) {
             return res.json(err);
@@ -79,7 +74,6 @@ app.put('/idProducer/user', (req, res) => {
 app.put('/idProducer/product', (req, res) => {
     const sql = "UPDATE `id_producer` SET `no_of_items`=? WHERE name='product'";
     const values = [req.body.id_no];
-    // console.log(req.body)
     db.query(sql, [values], (err, result) => {
         if (err) {
             return res.json(err);
@@ -125,7 +119,6 @@ app.get('/products', (req, res) => {
 app.post('/products', (req, res) => {
     const sql = "INSERT INTO `product` (`product_id`, `brand`, `model`, `type`, `quantity`, `unit_price`) VALUES (?)";
     const values = [
-
         req.body.id,
         req.body.brand,
         req.body.model,
@@ -146,7 +139,6 @@ app.post('/products', (req, res) => {
 app.put('/products/inventory/:id', (req, res) => {
     const sql = "UPDATE `product` SET `quantity` = ? WHERE `product`.`product_id` = ?";
     const values = [req.body.quantity, req.params.id];
-    console.log(req.body)
     db.query(sql, values, (err, result) => {
         if (err) {
             return res.json({ success: false, err });
@@ -165,7 +157,6 @@ app.get('/product/:id', (req, res) => {
             return res.json(err);
         }
         else {
-            // console.log(result);
             return res.json(result);
         }
     })
@@ -178,7 +169,6 @@ app.get('/product/specs/:id', (req, res) => {
             return res.json(err);
         }
         else {
-            // console.log(result);
             return res.json(result);
         }
     })
@@ -189,8 +179,20 @@ app.post('/product/specs', (req, res) => {
         req.body.product_id,
         req.body.specifications
     ];
-    console.log('values-', values);
     db.query(sql, [values], (err, result) => {
+        if (err) {
+            return res.json({ success: false, err });
+        }
+        else {
+            return res.json({ success: true, result });
+        }
+    })
+});
+
+app.put('/products/cart/:id', (req, res) => {
+    const sql = "UPDATE `product` SET `quantity` = `quantity` + ? WHERE `product`.`product_id` = ?";
+    const values = [req.body.quantity, req.params.id];
+    db.query(sql, values, (err, result) => {
         if (err) {
             return res.json({ success: false, err });
         }
@@ -200,17 +202,16 @@ app.post('/product/specs', (req, res) => {
     })
 })
 
+
 //REVIEW
 app.get('/reviews/:id', (req, res) => {
     const id = req.params.id;
     const sql = `SELECT * FROM review WHERE product_id = ?`;
-    console.log(id)
     db.query(sql, [id], (err, result) => {
         if (err) {
             return res.json(err);
         }
         else {
-            // console.log(result);
             return res.json(result);
         }
     })
@@ -235,6 +236,76 @@ app.post('/reviews', (req, res) => {
     })
 })
 
+//ORDERS
+app.get('/orderID/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "SELECT COUNT(*) AS orderCount FROM `order` WHERE `user_id`=?";
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            return res.json(err);
+        }
+        else {
+            return res.json(result);
+        }
+    })
+});
+
+app.post('/productSelected', (req, res) => {
+    const sql = "INSERT INTO `prod_selected` (`cart_id`, `quantity`, `product_id`, `unit_price`) VALUES (?)";
+    const values = [
+
+        req.body.cart_id,
+        req.body.quantity,
+        req.body.product_id,
+        req.body.unit_price
+    ];
+    db.query(sql, [values], (err, result) => {
+        if (err) {
+            return res.json({ success: false, err });
+        }
+        else {
+            return res.json({ success: true, result });
+        }
+    })
+})
+
+app.get('/productSelected/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "SELECT * FROM `prod_selected` WHERE `cart_id` = ?";
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            return res.json(err);
+        }
+        else {
+            return res.json(result);
+        }
+    })
+});
+// app.delete('/productSelected/', (req, res) => {
+
+//     const sql = 'DELETE * FROM `prod_selected` WHERE `cart_id` = ? AND `product_id` = ?';
+//     console.log(req.body);
+//     db.query(sql, [req.body.cart_id, req.body.product_id], (err, result) => {
+//         if (err) {
+//             return res.json(err);
+//         }
+//         else {
+//             return res.json(result);
+//         }
+//     })
+// });
+
+app.delete('/productSelected/', (req, res) => {
+    const sql = 'DELETE FROM `prod_selected` WHERE `cart_id` = ? AND `product_id` = ?';
+    console.log(req.body);
+    db.query(sql, [req.body.cart_id, req.body.product_id], (err, result) => {
+        if (err) {
+            return res.json(err);
+        } else {
+            return res.json(result);
+        }
+    });
+});
 
 app.listen(8081, () => {
     console.log("listening...");
