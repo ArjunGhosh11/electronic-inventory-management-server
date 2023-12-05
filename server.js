@@ -239,7 +239,7 @@ app.post('/reviews', (req, res) => {
 //ORDERS
 app.get('/orderID/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT COUNT(*) AS orderCount FROM `order` WHERE `user_id`=?";
+    const sql = "SELECT COUNT(*) AS orderCount FROM `orders` WHERE `user_id`=?";
     db.query(sql, [id], (err, result) => {
         if (err) {
             return res.json(err);
@@ -281,19 +281,6 @@ app.get('/productSelected/:id', (req, res) => {
         }
     })
 });
-// app.delete('/productSelected/', (req, res) => {
-
-//     const sql = 'DELETE * FROM `prod_selected` WHERE `cart_id` = ? AND `product_id` = ?';
-//     console.log(req.body);
-//     db.query(sql, [req.body.cart_id, req.body.product_id], (err, result) => {
-//         if (err) {
-//             return res.json(err);
-//         }
-//         else {
-//             return res.json(result);
-//         }
-//     })
-// });
 
 app.delete('/productSelected/', (req, res) => {
     const sql = 'DELETE FROM `prod_selected` WHERE `cart_id` = ? AND `product_id` = ?';
@@ -306,6 +293,28 @@ app.delete('/productSelected/', (req, res) => {
         }
     });
 });
+
+app.post('/orders', (req, res) => {
+    const sql = "INSERT INTO `orders` (`cart_id`, `distributer_name`, `user_id`, `date`,`total_amount`,`payment_status`,`payment_method`) VALUES (?)";
+    const values = [
+
+        req.body.cart_id,
+        req.body.distributerName,
+        req.body.user_id,
+        req.body.dateTime,
+        req.body.amount,
+        req.body.payment_status,
+        req.body.paymentMethod
+    ];
+    db.query(sql, [values], (err, result) => {
+        if (err) {
+            return res.json({ success: false, err });
+        }
+        else {
+            return res.json({ success: true, result });
+        }
+    })
+})
 
 app.listen(8081, () => {
     console.log("listening...");
