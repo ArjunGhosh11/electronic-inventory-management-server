@@ -40,6 +40,33 @@ app.get('/users/:email', (req, res) => {
         }
     })
 });
+app.get('/users/ID/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = `SELECT * FROM users WHERE user_id = ?`;
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            return res.json(err);
+        }
+        else {
+            return res.json(result);
+        }
+    })
+});
+
+app.put('/users/update/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "UPDATE `users` SET `name` = ?,`phone` = ?, `address`= ? WHERE `user_id`= ?";
+    const values = [req.body.name, req.body.phone, req.body.address, id];
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            return res.json({ success: false, err });
+        }
+        else {
+            return res.json({ success: true, result });
+        }
+    })
+})
+
 app.get('/admin/:email', (req, res) => {
     const email = req.params.email;
     const sql = `SELECT * FROM users WHERE email = ?`;
@@ -284,7 +311,6 @@ app.get('/productSelected/:id', (req, res) => {
 
 app.delete('/productSelected/', (req, res) => {
     const sql = 'DELETE FROM `prod_selected` WHERE `cart_id` = ? AND `product_id` = ?';
-    console.log(req.body);
     db.query(sql, [req.body.cart_id, req.body.product_id], (err, result) => {
         if (err) {
             return res.json(err);
@@ -292,6 +318,19 @@ app.delete('/productSelected/', (req, res) => {
             return res.json(result);
         }
     });
+});
+
+app.get('/orders/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = `SELECT * FROM orders WHERE user_id = ? ORDER BY date DESC`;
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            return res.json(err);
+        }
+        else {
+            return res.json(result);
+        }
+    })
 });
 
 app.post('/orders', (req, res) => {
@@ -307,6 +346,32 @@ app.post('/orders', (req, res) => {
         req.body.paymentMethod
     ];
     db.query(sql, [values], (err, result) => {
+        if (err) {
+            return res.json({ success: false, err });
+        }
+        else {
+            return res.json({ success: true, result });
+        }
+    })
+})
+
+app.delete('/orders/delete/:cart_id', (req, res) => {
+    const id = req.params.cart_id;
+    const sql = 'DELETE FROM `orders` WHERE `cart_id` = ?';
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            return res.json({ success: false, err });
+        } else {
+            return res.json({ success: true, result });
+        }
+    });
+});
+
+app.put('/orders/make-payment/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "UPDATE `orders` SET `payment_status` = ? WHERE `cart_id`= ?";
+    const values = ['paid', id];
+    db.query(sql, values, (err, result) => {
         if (err) {
             return res.json({ success: false, err });
         }
