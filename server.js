@@ -21,12 +21,26 @@ app.get("/", (req, res) => {
 
 
 app.get('/users', (req, res) => {
-    const sql = "SELECT * FROM users";
+    const sql = "SELECT * FROM users ORDER BY role DESC";
     db.query(sql, (err, data) => {
         if (err) return res.json(err);
         return res.json(data);
     })
 });
+
+app.put('/users/make-admin/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "UPDATE `users` SET `role` = ? WHERE `user_id`= ?";
+    const values = ['admin', id];
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            return res.json({ success: false, err });
+        }
+        else {
+            return res.json({ success: true, result });
+        }
+    })
+})
 
 app.get('/users/:email', (req, res) => {
     const email = req.params.email;
@@ -67,18 +81,18 @@ app.put('/users/update/:id', (req, res) => {
     })
 })
 
-app.get('/admin/:email', (req, res) => {
-    const email = req.params.email;
-    const sql = `SELECT * FROM users WHERE email = ?`;
-    db.query(sql, [email], (err, result) => {
-        if (err) {
-            return res.json(err);
-        }
-        else {
-            return res.json({ "type": result[0].role });
-        }
-    })
-});
+// app.get('/admin/:email', (req, res) => {
+//     const email = req.params.email;
+//     const sql = `SELECT * FROM users WHERE email = ?`;
+//     db.query(sql, [email], (err, result) => {
+//         if (err) {
+//             return res.json(err);
+//         }
+//         else {
+//             return res.json({ "type": result[0].role });
+//         }
+//     })
+// });
 app.get('/idProducer', (req, res) => {
     const sql = "SELECT * FROM id_producer";
     db.query(sql, (err, data) => {
@@ -114,7 +128,6 @@ app.put('/idProducer/product', (req, res) => {
 app.post('/users', (req, res) => {
     const sql = "INSERT INTO `users` (`user_id`, `name`, `email`, `password`, `address`, `phone`, `role`) VALUES (?)";
     const values = [
-
         req.body.id,
         req.body.name,
         req.body.email,
@@ -123,6 +136,8 @@ app.post('/users', (req, res) => {
         req.body.phone,
         req.body.role
     ];
+
+
     db.query(sql, [values], (err, result) => {
         if (err) {
             return res.json(err);
@@ -332,6 +347,17 @@ app.get('/orders/:id', (req, res) => {
         }
     })
 });
+app.get('/orders/', (req, res) => {
+    const sql = `SELECT * FROM orders  ORDER BY date DESC`;
+    db.query(sql, (err, result) => {
+        if (err) {
+            return res.json(err);
+        }
+        else {
+            return res.json(result);
+        }
+    })
+});
 
 app.post('/orders', (req, res) => {
     const sql = "INSERT INTO `orders` (`cart_id`, `distributer_name`, `user_id`, `date`,`total_amount`,`payment_status`,`payment_method`) VALUES (?)";
@@ -380,9 +406,21 @@ app.put('/orders/make-payment/:id', (req, res) => {
         }
     })
 })
+app.put('/orders/deliver/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "UPDATE `orders` SET `payment_status` = ? WHERE `cart_id`= ?";
+    const values = ['approved', id];
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            return res.json({ success: false, err });
+        }
+        else {
+            return res.json({ success: true, result });
+        }
+    })
+})
 
 app.listen(8081, () => {
     console.log("listening...");
 });
 
-//ADMIN CHECK
