@@ -34,7 +34,7 @@ app.put('/users/make-admin/:id', (req, res) => {
     const values = ['admin', id];
     db.query(sql, values, (err, result) => {
         if (err) {
-            return res.json({ success: false, err });
+            return res.json({ success: false, error: err });
         }
         else {
             return res.json({ success: true, result });
@@ -149,6 +149,23 @@ app.post('/users', (req, res) => {
 })
 
 //FOR PRODUCTS
+
+app.get('/products/search', (req, res) => {
+    const searchTerm = req.query.q;
+
+    // Perform case-insensitive search in the MySQL database
+    const searchQuery = `SELECT * FROM product WHERE  LOWER(brand) LIKE LOWER('%${searchTerm}%') OR LOWER(product_id) LIKE LOWER('%${searchTerm}%') OR LOWER(model) LIKE LOWER('%${searchTerm}%') OR LOWER(type) LIKE LOWER('%${searchTerm}%')`;
+    db.query(searchQuery, (err, results) => {
+        if (err) {
+            console.error('Error searching products:', err);
+            res.status(500).json({ error: 'Error searching products' });
+        } else {
+            res.json(results); // Return case-insensitive search results as JSON
+        }
+    });
+});
+
+
 
 app.get('/products', (req, res) => {
     const sql = "SELECT * FROM product";
